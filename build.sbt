@@ -9,9 +9,9 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 resolvers += Resolver.sonatypeRepo("snapshots")
 //resolvers += Resolver.url("Typesafe Ivy releases", url("https://repo.typesafe.com/typesafe/ivy-releases"))(Resolver.ivyStylePatterns)
 
-val akkaGroup = "com.typesafe.akka"
-val akkaVersion = "2.0.5"
-val scalaTestVersion = "2.2.4"
+//val akkaGroup = "com.typesafe.akka"
+//val akkaVersion = "2.0.5"
+//val scalaTestVersion = "2.2.4"
 
 libraryDependencies += guice
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
