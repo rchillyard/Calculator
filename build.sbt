@@ -15,8 +15,15 @@ val scalaTestVersion = "2.2.4"
 
 libraryDependencies += guice
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
-//libraryDependencies += "com.h2database" % "h2" % "1.4.197"
 
+// https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit
+libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.19" % Test
+
+libraryDependencies += "com.typesafe.play" % "play-logback_2.12" % "2.5.4"
+
+//resolvers ++= Seq(
+//  "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+//)
 //libraryDependencies ++= Seq(
 //  akkaGroup %% "akka-actor" % akkaVersion,
 //  akkaGroup %% "akka-testkit" % akkaVersion % Test,
@@ -36,4 +43,4 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2
 routesGenerator := InjectedRoutesGenerator
 
 
-//fork in run := true
+fork in run := true
