@@ -7,8 +7,8 @@ import scala.util._
  * @author scalaprof
  */
 object DoubleMill {
-  val conv: String=>Try[Double] = DoubleMill.valueOf _
-  val lookup: String=>Option[Double] = DoubleMill.constants.get _
+  val conv: String=>Try[Double] = DoubleMill.valueOf
+  val lookup: String=>Option[Double] = DoubleMill.constants.get
   implicit val store = Map[String,Double]()
   implicit val parser = new ExpressionParser[Double](conv,lookup)
   def apply(): Mill[Double] = new Mill(Stack[Double]()) {

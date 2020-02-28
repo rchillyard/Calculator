@@ -80,7 +80,7 @@ class AsyncController @Inject()(cc: ControllerComponents, actorSystem: ActorSyst
   def message = Action.async {
     val xsf = (calculator ? View).mapTo[Seq[_]]
     xsf map {
-      case xs => Ok(s"$name: calculator has the following elements (starting with top): $xs")
+      case xs => Ok(s"$name: calculator has the nothing at all: $xs")
     }
   }
 

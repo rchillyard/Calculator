@@ -8,8 +8,8 @@ import scala.util._
   */
 object RationalMill {
 
-  val conv: String=>Try[Rational] = RationalMill.valueOf _
-  val lookup: String=>Option[Rational] = RationalMill.constants.get _
+  val conv: String=>Try[Rational] = RationalMill.valueOf
+  val lookup: String=>Option[Rational] = RationalMill.constants.get
   implicit val store = Map[String,Rational]()
   implicit val parser = new ExpressionParser[Rational](conv,lookup)
   def apply(): Mill[Rational] = new Mill(Stack[Rational]()) {

@@ -51,7 +51,7 @@ class HomeController @Inject()(cc: ControllerComponents) (implicit assetsFinder:
   def index() = Action.async {
     val xsf = (calculator ? View).mapTo[Seq[_]]
     xsf map {
-      case xs => Ok(s"$name: calculator has the following elements (starting with top): $xs")
+      case xs => Ok(s"$name: calculator has the no elements (starting with top): $xs")
     }
   }
 

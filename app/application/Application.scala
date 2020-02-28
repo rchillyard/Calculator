@@ -16,8 +16,8 @@ import models._
 
 object Application {
   def getSetupForDouble(implicit system: ActorSystem) = {
-		  implicit val lookup: String=>Option[Double] = DoubleMill.constants.get _
-      implicit val conv: String=>Try[Double] = DoubleMill.valueOf _
+		  implicit val lookup: String=>Option[Double] = DoubleMill.constants.get
+      implicit val conv: String=>Try[Double] = DoubleMill.valueOf
 			implicit val parser = new ExpressionParser[Double](conv,lookup)
 			val mill: Mill[Double] = DoubleMill()
 			// Note: the following pattern should NOT be used within an actor
@@ -28,8 +28,8 @@ object Application {
   // I'd like to try the possibility of dynamically loading the controllers.Rational stuff.
   // But, that's going to be very tricky, so we'll leave it for now.
     def getSetupForRational(implicit system: ActorSystem) = {
-      implicit val lookup: String=>Option[Rational] = RationalMill.constants.get _
-      implicit val conv: String=>Try[Rational] = RationalMill.valueOf _
+      implicit val lookup: String=>Option[Rational] = RationalMill.constants.get
+      implicit val conv: String=>Try[Rational] = RationalMill.valueOf
       implicit val parser = new ExpressionParser[Rational](conv,lookup)
       val mill: Mill[Rational] = RationalMill()
       // Note: the following pattern should NOT be used within an actor

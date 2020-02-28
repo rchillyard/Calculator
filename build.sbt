@@ -13,6 +13,10 @@ val akkaGroup = "com.typesafe.akka"
 val akkaVersion = "2.0.5"
 val scalaTestVersion = "2.2.4"
 
+libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "4.3.4" % "test")
+
+scalacOptions in Test ++= Seq("-Yrangepos")
+
 libraryDependencies += guice
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
 //libraryDependencies += "com.h2database" % "h2" % "1.4.197"
