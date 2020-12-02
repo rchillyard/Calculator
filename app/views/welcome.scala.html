@@ -67,13 +67,13 @@ GET     /               controllers.HomeController.index</code></pre>
 
     <p>You can read more about <a href="https://www.playframework.com/documentation/@version/ScalaTemplates">Twirl</a>, the template language used by Play, and how Play handles <a href="https://www.playframework.com/documentation/@version/ScalaActions">actions</a>.</p>
 
-    <h2>Async Controller</h2>
+    <h2>Home Controller</h2>
 
     Now that you've seen how Play renders a page, take a look at <code>AsyncController.scala</code>, which shows how to do asynchronous programming when handling a request.  The code is almost exactly the same as <code>HomeController.scala</code>, but instead of returning <code>Result</code>, the action returns <code>Future[String]</code> to Play.  When the execution completes, Play can use a thread to render the result without blocking the thread in the mean time.
 
-    <p>
-        <a href="@routes.AsyncController.message">Click here for the AsyncController action!</a>
-    </p>
+@*    <p>*@
+@*        <a href="@routes.HomeController.message">Click here for the AsyncController action!</a>*@
+@*    </p>*@
 
     <p>
         You can read more about <a href="https://www.playframework.com/documentation/@version/ScalaAsync">asynchronous actions</a> in the documentation.

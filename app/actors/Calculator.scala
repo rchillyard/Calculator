@@ -12,7 +12,7 @@ import models._
 class Calculator[A : Numeric](mill: Mill[A], parser: ExpressionParser[A]) extends Actor with ActorLogging {
   
   override def receive = {
-    case View => sender ! mill.toSeq
+    case View => sender ! mill
     case x: String =>
       log.info(s"received $x")
       try {

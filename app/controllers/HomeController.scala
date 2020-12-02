@@ -46,23 +46,20 @@ class HomeController @Inject()(cc: ControllerComponents) (implicit assetsFinder:
   }
   val calculator = system.actorOf(setup _1,setup _2)
   val name: String = setup _3;
-  println(s"$name is ready")
+  println(s"$name is ready") // TODO send this to logs
 
   def index() = Action.async {
-    val xsf = (calculator ? View).mapTo[Seq[_]]
-    xsf map {
-      case xs => Ok(s"$name: calculator has the no elements (starting with top): $xs")
+    (calculator ? View).mapTo[Mill[_]].map(_.iterator.toList) map {
+      case Nil => Ok(s"$name: calculator stack is empty")
+      case xs => Ok(s"$name: calculator has elements (starting with top): ${xs.mkString(", ")}")
     }
   }
 
   def command(s: String) = Action.async {
-    val xtf = (calculator ? s).mapTo[Try[_]]
-    xtf map {
+    (calculator ? s).mapTo[Try[_]] map {
       case Success(x) => Ok(s"""$name: you entered "$s" and got back $x""")
-      case Failure(e) => if (s=="clr") Ok("$name: cleared") else Ok(s"""$name: you entered "$s" which caused error: $e""")
+      case Failure(e) => if (s=="clr") Ok(s"$name: cleared") else Ok(s"""$name: you entered "$s" which caused error: $e""")
       //      case Failure(e) => if (s=="clr") redirect("/") else  Ok(s"""$name: you entered "$s" which caused error: $e""")
     }
   }
-
-
 }
