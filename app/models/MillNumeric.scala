@@ -33,7 +33,7 @@ abstract class Mill[A: Numeric](stack: Stack[A])(implicit store: Map[String, A])
     val x = stack.pop; if (debugMill) println(s"popped $x"); x
   }
 
-  def setDebug(b: Boolean) {
+  def setDebug(b: Boolean): Unit = {
     debugMill = b
   }
 

@@ -1,29 +1,17 @@
 package controllers
 
 import actors.View
-import javax.inject._
 import akka.actor.ActorSystem
+import akka.pattern.ask
 import akka.util.Timeout
 import application.Application
 import com.typesafe.config.ConfigFactory
+import javax.inject._
 import play.api.mvc._
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future, Promise}
-  import play.api._
-  import play.api.mvc._
-
-   import akka.actor.{ActorSystem, Props}
-  import akka.util.Timeout
-  import akka.pattern.ask
-  import scala.concurrent._
-  import scala.concurrent.duration._
-  import scala.util._
-
-  import akka.actor.ActorRef
-  import com.typesafe.config.{ ConfigFactory, Config }
-  import actors._
-  import models._
+import scala.util._
 
 /**
  * This controller creates an `Action` that demonstrates how to write
@@ -66,15 +54,15 @@ class AsyncController @Inject()(cc: ControllerComponents, actorSystem: ActorSyst
   val config = ConfigFactory.load()
   val which = config.getString("calculator")
 
-  implicit val timeout: Timeout = Timeout(10 seconds)
+  implicit val timeout: Timeout = Timeout(10.seconds)
   implicit val system = ActorSystem("RPN-Calculator")
   val setup = which match {
     case "rational" => Application.getSetupForRational
     case "double" => Application.getSetupForDouble
     case _ => Console.err.println(s"Unsupported calculator type: $which"); Application.getSetupForRational
   }
-  val calculator = system.actorOf(setup _1,setup _2)
-  val name: String = setup _3;
+  val calculator = system.actorOf(setup._1, setup._2)
+  val name: String = setup._3;
   println(s"$name is ready")
 
   def message = Action.async {
