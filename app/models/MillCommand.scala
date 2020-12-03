@@ -7,4 +7,4 @@ package models
  * which are used for reads, distinct from the form processing DTO,
  * which are used for writes.
  */
-case class Widget(command: String, value: Option[Int])
+case class MillCommand(command: String, value: Option[Int])

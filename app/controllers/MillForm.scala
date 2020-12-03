@@ -1,6 +1,6 @@
 package controllers
 
-object WidgetForm {
+object MillForm {
 
   import play.api.data.Form
   import play.api.data.Forms._
@@ -14,7 +14,7 @@ object WidgetForm {
   case class Data(command: String, value: Option[Int])
 
   /**
-   * The form definition for the "create a widget" form.
+   * The form definition for the "create a mill command" form.
    * It specifies the form fields and their types,
    * as well as how to convert from a Data to form data and vice versa.
    */
