@@ -10,7 +10,7 @@ GET         /rest                 controllers.RestController.index
 # Treat the text following the "/" as the parameter to command.
 GET         /rest/:command        controllers.RestController.command(command: String)
 
-GET         /mill              controllers.MillController.showMill
+GET         /mill              controllers.MillController.millCommand
 POST        /mill              controllers.MillController.millCommand
 
 # Map static resources from the /public folder to the /assets URL path

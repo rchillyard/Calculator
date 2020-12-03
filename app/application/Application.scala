@@ -1,19 +1,12 @@
 package application
 
-import play.api._
-import play.api.mvc._
-import akka.actor.{ActorSystem, Props}
-import akka.util.Timeout
-import akka.pattern.ask
-import scala.concurrent._
-import scala.concurrent.duration._
-import scala.util._
-
-import akka.actor.ActorRef
-import com.typesafe.config.{ ConfigFactory, Config }
 import actors._
+import akka.actor.{ActorSystem, Props}
 import models._
 
+import scala.util._
+
+// CONSIDER making this part of the services package
 object Application {
   def getSetupForDouble(implicit system: ActorSystem) = {
 		  implicit val lookup: String=>Option[Double] = DoubleMill.constants.get
