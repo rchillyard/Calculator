@@ -5,22 +5,14 @@
 GET         /                     controllers.WidgetController.index
 
 # An example controller showing a sample home page
-GET         /rest                 controllers.HomeController.index
+GET         /rest                 controllers.RestController.index
 
 # Treat the text following the "/" as the parameter to command.
-GET         /rest/:command        controllers.HomeController.command(command: String)
-
-# An example controller showing how to use dependency injection
-GET         /count                controllers.CountController.count
+GET         /rest/:command        controllers.RestController.command(command: String)
 
 GET         /widgets              controllers.WidgetController.listWidgets
-PUT         /widgets              controllers.HomeController.command(command: String)
+PUT         /widgets              controllers.RestController.command(command: String)
 POST        /widgets              controllers.WidgetController.createWidget
 
-# An example controller showing how to write asynchronous code
-#GET     /message                    controllers.AsyncController.message
-
-
-#GET     /hello                      controllers.
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file         controllers.Assets.versioned(file)
