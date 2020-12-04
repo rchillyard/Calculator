@@ -5,3 +5,4 @@ project/.sbtserver
 .idea/
 .sbtserver/
 logs/
+.bsp/sbt.json

@@ -37,7 +37,7 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
   // The URL to the command.  You can call this directly from the template, but it
   // can be more convenient to leave the template completely stateless i.e. all
   // of the "MillController" references are inside the .scala file.
-  private val postUrl = routes.MillController.millCommand
+  private val postUrl = routes.MillController.millCommand()
 
   private val calculator = akka.getCalculator
   private val name = akka.getName
@@ -48,39 +48,46 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
   }
 
   def showMill: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
+    println("showMill")
     // Pass an unpopulated form to the template
     val eventualList: Future[List[Rational]] = getStack
     eventualList.foreach(println(_))
     eventualList map {
       //      case Nil => Ok(s"$name: calculator stack is empty")
-      case xs =>
+      xs =>
         val millCommands: immutable.Seq[MillCommand] = xs.map(r => MillCommand("", Try(r.toInt).toOption))
-        Ok(views.html.listWidgets(millCommands, form, postUrl))
+        Ok(views.html.mill(millCommands, form, postUrl))
     }
   }
 
   // This will be the action that handles our form post
-  def millCommand: Action[AnyContent] = Action {
+  def millCommand: Action[AnyContent] = Action.async {
     implicit request: MessagesRequest[AnyContent] =>
 
-      val errorFunction: Form[Data] => Result = { formWithErrors: Form[Data] =>
+      val errorFunction: Form[Data] => Future[Result] = { formWithErrors: Form[Data] =>
         // This is the bad case, where the form had validation errors.
         // Let's show the user the form again, with the errors highlighted.
         // Note how we pass the form with errors to the template.
-        BadRequest(views.html.listWidgets(commands.toSeq, formWithErrors, postUrl))
+        Future(BadRequest(views.html.mill(commands.toSeq, formWithErrors, postUrl)))
       }
 
-      val successFunction: Data => Result = { data: Data =>
+      val successFunction: Data => Future[Result] = { data: Data =>
         // This is the good case, where the form was successfully parsed as a Data object.
         val command = MillCommand(command = data.command, value = data.value)
         commands += command
-        command match {
+        val result: Future[(Rational, Seq[MillCommand])] = command match {
           case MillCommand(w, None) => sendToCalculator(w)
           case MillCommand(_, Some(value)) => sendToCalculator(value.toString) // TODO should really only do push
-          case _ => println("Illegal mill command")
+          case _ => println("Illegal mill command"); Future(Rational.NaN -> Seq[MillCommand]())
         }
-
-        Redirect(routes.MillController.millCommand).flashing("info" -> "Command/value added!")
+        result.onComplete {
+          case Success((_, xs)) =>
+            commands.clear()
+            xs.foreach(commands.append)
+          case _ =>
+        }
+        result.map { case (r, xs) => Redirect(routes.MillController.millCommand()).flashing("info" -> s"Result: $r") }
+        //        Future(Redirect(routes.MillController.millCommand()).flashing("info" -> "Command/value added!"))
       }
 
       val formValidationResult: Form[Data] = form.bindFromRequest
@@ -96,17 +103,26 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
   // NOTE: this assumes Mill uses Rational
   private def getStack: Future[List[Rational]] = (calculator ? actors.View).mapTo[Mill[Rational]].map(_.iterator.toList)
 
-  def sendToCalculator(s: String): Unit = {
-    (calculator ? s).mapTo[Try[_]] map {
+  // NOTE: this assumes Mill uses Rational
+  def sendToCalculator(s: String): Future[(Rational, Seq[MillCommand])] = flatten {
+    (calculator ? s).mapTo[Try[Rational]] flatMap {
       case Success(x) =>
-        println(s"""$name: you entered "$s" and got back $x""")
         getStack map {
-          case xs =>
+          xs =>
             commands.clear()
             val millCommands: immutable.Seq[MillCommand] = xs.map(r => MillCommand("", Try(r.toInt).toOption))
-            millCommands.foreach(commands.append(_))
+            Success(x -> millCommands)
         }
-      case Failure(e) => if (s == "clr") println("OK") else println(s"""$name: you entered "$s" which caused error: $e""")
+      case Failure(e) =>
+        Future(if (s == "clr") Success(Rational.NaN -> Seq[MillCommand]()) else Failure(new Exception(s"""$name: you entered "$s" which caused:""", e)))
     }
   }
+
+  def flatten[X](xyf: Future[Try[X]]): Future[X] = for (xy <- xyf; x <- asFuture(xy)) yield x
+
+  def asFuture[X](xy: Try[X]): Future[X] = xy match {
+    case Success(s) => Future.successful(s)
+    case Failure(e) => Future.failed(e)
+  }
+
 }
