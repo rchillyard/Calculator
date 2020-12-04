@@ -1,7 +1,6 @@
 package actors
 
-import akka.actor.{ Actor, ActorLogging, ActorRef }
-import scala.util._
+import akka.actor.{Actor, ActorLogging}
 import models._
 
 /**
@@ -12,9 +11,11 @@ import models._
 class Calculator[A : Numeric](mill: Mill[A], parser: ExpressionParser[A]) extends Actor with ActorLogging {
   
   override def receive = {
-    case View => sender ! mill.toSeq
+    case View =>
+      log.info(s"Calculator replying with mill contents: $mill")
+      sender ! mill
     case x: String =>
-      log.info(s"received $x")
+      log.info(s"Calculator received $x")
       try {
         val response = mill.parse(x)(parser)
         log.info(s"response: $response")

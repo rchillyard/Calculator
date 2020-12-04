@@ -16,11 +16,10 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.util.Timeout
 import java.net.URL
 
-import com.sun.tools.example.debug.expr.ExpressionParser
 import org.scalatest.concurrent._
 import org.scalatest._
 import org.scalatest.time._
-import controllers.Rational
+import models.Rational
 import models._
 
 

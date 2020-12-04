@@ -1,24 +1,30 @@
-name := "PlaySampleProject"
+lazy val root = (project in file("."))
+  .enablePlugins(PlayScala)
+  .settings(
+    name := """Calculator""",
+    version := "2.8.x",
+    scalaVersion := "2.13.1",
+    libraryDependencies ++= Seq(
+      guice,
+      "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test,
+    ),
+    scalacOptions ++= Seq(
+      "-feature",
+      "-deprecation",
+      "-Xfatal-warnings"
+    )
+  )
 
-version := "0.1"
-
-scalaVersion := "2.12.7"
-
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
-
-resolvers += Resolver.sonatypeRepo("snapshots")
-//resolvers += Resolver.url("Typesafe Ivy releases", url("https://repo.typesafe.com/typesafe/ivy-releases"))(Resolver.ivyStylePatterns)
-
-val akkaGroup = "com.typesafe.akka"
-val akkaVersion = "2.0.5"
-val scalaTestVersion = "2.2.4"
-
-libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "4.3.4" % "test")
-
-scalacOptions in Test ++= Seq("-Yrangepos")
-
-libraryDependencies += guice
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+//val akkaGroup = "com.typesafe.akka"
+//val akkaVersion = "2.0.5"
+//val scalaTestVersion = "2.2.4"
+//
+//libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "4.3.4" % "test")
+//
+//scalacOptions in Test ++= Seq("-Yrangepos")
+//
+//libraryDependencies += guice
+//libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
 //libraryDependencies += "com.h2database" % "h2" % "1.4.197"
 
 //libraryDependencies ++= Seq(
@@ -37,7 +43,7 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2
 
 // Play provides two styles of routers, one expects its actions to be injected, the
 // other, legacy style, accesses its actions statically.
-routesGenerator := InjectedRoutesGenerator
+//routesGenerator := InjectedRoutesGenerator
 
 
 //fork in run := true

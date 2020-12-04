@@ -1,7 +1,8 @@
 //Completely new File
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.20")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.1")
+//addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.20")
 
 //// The Typesafe repository
-resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
-resolvers += "Scalaz Bintray Repo" at "https://dl.bintray.com/scalaz/releases"
+//resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
+//resolvers += "Scalaz Bintray Repo" at "https://dl.bintray.com/scalaz/releases"

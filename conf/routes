@@ -2,13 +2,16 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+GET         /                     controllers.MillController.index
+
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
-GET     /:command                   controllers.AsyncController.command(command: String)
-# An example controller showing how to use dependency injection
-GET     /count                      controllers.CountController.count
-# An example controller showing how to write asynchronous code
-GET     /message                    controllers.AsyncController.message
+GET         /rest                 controllers.RestController.index
+
+# Treat the text following the "/" as the parameter to command.
+GET         /rest/:command        controllers.RestController.command(command: String)
+
+GET         /mill              controllers.MillController.millCommand
+POST        /mill              controllers.MillController.millCommand
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(file)
+GET         /assets/*file         controllers.Assets.versioned(file)
