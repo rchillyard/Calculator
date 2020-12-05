@@ -1,33 +1,33 @@
-@(millCommands: Seq[models.MillCommand], form: Form[controllers.MillForm.Data], postUrl: Call)(implicit request: MessagesRequestHeader)
+@(millValues: Seq[MillCommand], form: Form[controllers.MillForm.ValidCommand], postUrl: Call)(implicit request: MessagesRequestHeader)
 
-@main("Mill") {
+  @main("Mill") {
 
-  <h1>Mill</h1>
-  @* Flash shows updates to a page *@
-  @request.flash.data.map { case (name, value) =>
-  <div>@name: @value</div>
-  }
-
-  <table>
-    <thead>
-      <tr>
-        <th>Stack</th>
-    </thead>
-    <tbody>
-    @for(w <- millCommands) {
-      <tr>
-        <td>@w.value</td>
-      </tr>
+    <h1>Mill</h1>
+    @* Flash shows updates to a page *@
+    @request.flash.data.map { case (name, value) =>
+    <div>@name: @value</div>
     }
-    </tbody>
-  </table>
 
-  <hr/>
-  @* Global errors are not tied to any particular form field *@
-  @if(form.hasGlobalErrors) {
-    @form.globalErrors.map { error: FormError =>
-      <div>
-        @error.key: @error.message
+    <table>
+      <thead>
+        <tr>
+          <th>Stack</th>
+      </thead>
+      <tbody>
+      @for(w <- millValues) {
+        <tr>
+          <td>@w.maybeValue.get.toString</td>
+        </tr>
+      }
+      </tbody>
+    </table>
+
+    <hr/>
+    @* Global errors are not tied to any particular form field *@
+    @if(form.hasGlobalErrors) {
+      @form.globalErrors.map { error: FormError =>
+        <div>
+          @error.key: @error.message
         </div>
       }
     }
@@ -35,9 +35,9 @@
     @helper.form(postUrl) {
       @helper.CSRF.formField
 
-      @helper.inputText(form("command"))
+      @helper.inputText(form("maybeCommand"))
 
-      @helper.inputText(form("value"))
+      @helper.inputText(form("maybeValue"))
 
       <button>Mill Command</button>
     }

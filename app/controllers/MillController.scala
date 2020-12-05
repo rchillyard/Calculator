@@ -3,12 +3,12 @@ package controllers
 import akka.pattern.ask
 import akka.util.Timeout
 import javax.inject.Inject
-import models.{Mill, MillCommand, Rational}
+import models.{Mill, MillCommand, NumericValue, Rational}
 import play.api.data._
 import play.api.mvc._
 import services.Akka
 
-import scala.collection._
+import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -29,12 +29,7 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
 
   import MillForm._
 
-  // CONSIDER surely we shouldn't have variable state in a controller??
-  // NOTE: this isn't really a list of MillCommands: it's now what's on the stack.
-  // TODO rework this.
-  private val commands = mutable.ArrayBuffer[MillCommand]()
-
-  // The URL to the command.  You can call this directly from the template, but it
+  // The URL to the maybeCommand.  You can call this directly from the template, but it
   // can be more convenient to leave the template completely stateless i.e. all
   // of the "MillController" references are inside the .scala file.
   private val postUrl = routes.MillController.millCommand()
@@ -50,12 +45,11 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
   def showMill: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
     println("showMill")
     // Pass an unpopulated form to the template
-    val eventualList: Future[List[Rational]] = getStack
-    eventualList.foreach(println(_))
+    val eventualList: Future[List[NumericValue]] = for (xs <- getStack) yield for (x <- xs) yield NumericValue(x)
     eventualList map {
       //      case Nil => Ok(s"$name: calculator stack is empty")
       xs =>
-        val millCommands: immutable.Seq[MillCommand] = xs.map(r => MillCommand("", Try(r.toInt).toOption))
+        val millCommands: immutable.Seq[MillCommand] = xs.map(r => MillCommand(None, Success(r).toOption))
         Ok(views.html.mill(millCommands, form, postUrl))
     }
   }
@@ -64,34 +58,30 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
   def millCommand: Action[AnyContent] = Action.async {
     implicit request: MessagesRequest[AnyContent] =>
 
-      val errorFunction: Form[Data] => Future[Result] = { formWithErrors: Form[Data] =>
-        // This is the bad case, where the form had validation errors.
-        // Let's show the user the form again, with the errors highlighted.
-        // Note how we pass the form with errors to the template.
-        Future(BadRequest(views.html.mill(commands.toSeq, formWithErrors, postUrl)))
+      /**
+       * NOTE: this function is actually responsible for showing the current state of the Stack.
+       * It's invoked whenever the fields in the input form are empty--
+       * which happens immediately after the button is pushed and millCommand is invoked.
+       */
+      val invalidFunction: Form[ValidCommand] => Future[Result] = { formWithErrors: Form[ValidCommand] =>
+        println("millCommand: invalidFunction")
+        getStack.map(xs => BadRequest(views.html.mill(xs.map(r => MillCommand(None, Success(NumericValue(r)).toOption)), formWithErrors, postUrl)))
       }
 
-      val successFunction: Data => Future[Result] = { data: Data =>
-        // This is the good case, where the form was successfully parsed as a Data object.
-        val command = MillCommand(command = data.command, value = data.value)
-        commands += command
+      val validFunction: ValidCommand => Future[Result] = { data: ValidCommand =>
+        // This is the good case, where the form was successfully parsed as a ValidCommand object.
+        val command = MillCommand(maybeCommand = data.maybeCommand, maybeValue = data.maybeValue.flatMap(w => NumericValue.parse(w).toOption))
         val result: Future[(Rational, Seq[MillCommand])] = command match {
-          case MillCommand(w, None) => sendToCalculator(w)
+          case MillCommand(Some(w), None) => sendToCalculator(w)
           case MillCommand(_, Some(value)) => sendToCalculator(value.toString) // TODO should really only do push
-          case _ => println("Illegal mill command"); Future(Rational.NaN -> Seq[MillCommand]())
-        }
-        result.onComplete {
-          case Success((_, xs)) =>
-            commands.clear()
-            xs.foreach(commands.append)
-          case _ =>
+          case _ => println("Illegal mill maybeCommand"); Future(Rational.NaN -> Seq[MillCommand]())
         }
         result.map { case (r, xs) => Redirect(routes.MillController.millCommand()).flashing("info" -> s"Result: $r") }
-        //        Future(Redirect(routes.MillController.millCommand()).flashing("info" -> "Command/value added!"))
+        //        Future(Redirect(routes.MillController.millCommand()).flashing("info" -> "Command/maybeValue added!"))
       }
 
-      val formValidationResult: Form[Data] = form.bindFromRequest
-      formValidationResult.fold(errorFunction, successFunction)
+      val formValidationResult: Form[ValidCommand] = form.bindFromRequest
+      formValidationResult.fold(invalidFunction, validFunction)
   }
 
   def show(): Action[AnyContent] = Action.async(
@@ -101,7 +91,11 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
     })
 
   // NOTE: this assumes Mill uses Rational
-  private def getStack: Future[List[Rational]] = (calculator ? actors.View).mapTo[Mill[Rational]].map(_.iterator.toList)
+  private def getStack: Future[List[Rational]] = {
+    val rmf: Future[Mill[Rational]] = (calculator ? actors.View).mapTo[Mill[Rational]]
+    val rf: Future[List[Rational]] = for (rm <- rmf) yield for (r <- rm.toList) yield r //rmf.map(_.iterator.toList.map(NumericValue(_)))
+    rf
+  }
 
   // NOTE: this assumes Mill uses Rational
   def sendToCalculator(s: String): Future[(Rational, Seq[MillCommand])] = flatten {
@@ -109,8 +103,7 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
       case Success(x) =>
         getStack map {
           xs =>
-            commands.clear()
-            val millCommands: immutable.Seq[MillCommand] = xs.map(r => MillCommand("", Try(r.toInt).toOption))
+            val millCommands: Seq[MillCommand] = xs.map(r => MillCommand(None, Try(NumericValue(r)).toOption))
             Success(x -> millCommands)
         }
       case Failure(e) =>
