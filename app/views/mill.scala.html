@@ -35,9 +35,9 @@
     @helper.form(postUrl) {
       @helper.CSRF.formField
 
-      @helper.inputText(form("maybeCommand"))
+      @helper.inputText(form("command"))
 
-      @helper.inputText(form("maybeValue"))
+      @helper.inputText(form("value"))
 
       <button>Mill Command</button>
     }

@@ -64,9 +64,9 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
        * which happens immediately after the button is pushed and millCommand is invoked.
        */
       val invalidFunction: Form[ValidCommand] => Future[Result] = { formWithErrors: Form[ValidCommand] =>
-        println("millCommand: invalidFunction")
         getStack.map(xs => BadRequest(views.html.mill(xs.map(r => MillCommand(None, Success(NumericValue(r)).toOption)), formWithErrors, postUrl)))
       }
+
 
       val validFunction: ValidCommand => Future[Result] = { data: ValidCommand =>
         // This is the good case, where the form was successfully parsed as a ValidCommand object.
@@ -76,8 +76,7 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
           case MillCommand(_, Some(value)) => sendToCalculator(value.toString) // TODO should really only do push
           case _ => println("Illegal mill maybeCommand"); Future(Rational.NaN -> Seq[MillCommand]())
         }
-        result.map { case (r, xs) => Redirect(routes.MillController.millCommand()).flashing("info" -> s"Result: $r") }
-        //        Future(Redirect(routes.MillController.millCommand()).flashing("info" -> "Command/maybeValue added!"))
+        result.map { case (r, _) => Redirect(routes.MillController.millCommand()).flashing("info" -> s"Result: $r") }
       }
 
       val formValidationResult: Form[ValidCommand] = form.bindFromRequest
@@ -92,9 +91,8 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
 
   // NOTE: this assumes Mill uses Rational
   private def getStack: Future[List[Rational]] = {
-    val rmf: Future[Mill[Rational]] = (calculator ? actors.View).mapTo[Mill[Rational]]
-    val rf: Future[List[Rational]] = for (rm <- rmf) yield for (r <- rm.toList) yield r //rmf.map(_.iterator.toList.map(NumericValue(_)))
-    rf
+    val rmf = (calculator ? actors.View).mapTo[Mill[Rational]]
+    for (rm <- rmf) yield for (r <- rm.toList) yield r
   }
 
   // NOTE: this assumes Mill uses Rational

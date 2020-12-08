@@ -14,7 +14,7 @@ object MillForm {
    * CONSIDER can we eliminate this and simply use MillCommand?
    */
   case class ValidCommand(maybeCommand: Option[String], maybeValue: Option[String]) {
-    def isValid = maybeCommand.isDefined || maybeValue.isDefined
+    def isValid: Boolean = maybeCommand.isDefined || maybeValue.isDefined
   }
 
   /**
@@ -22,10 +22,10 @@ object MillForm {
    * It specifies the form fields and their types,
    * as well as how to convert from a ValidCommand to form data and vice versa.
    */
-  val form = Form(
+  val form: Form[ValidCommand] = Form(
     mapping(
-      "maybeCommand" -> optional(nonEmptyText),
-      "maybeValue" -> optional(nonEmptyText)
+      "command" -> optional(text),
+      "value" -> optional(text)
     )(ValidCommand.apply)(ValidCommand.unapply).verifying(_.isValid)
   )
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import actors._
+import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.util.Timeout
 import application.Application
@@ -22,18 +23,19 @@ import scala.util._
 class RestController @Inject()(akka: Akka, cc: ControllerComponents)(implicit assetsFinder: AssetsFinder, ec: ExecutionContext)
   extends AbstractController(cc) {
 
-  val config = ConfigFactory.load()
-  val which = config.getString("calculator")
+  private val config = ConfigFactory.load()
+  private val which = config.getString("calculator")
 
   implicit val timeout: Timeout = Timeout(10.seconds)
-  implicit val system = akka.getActorSystem
-  val setup = which match {
+  implicit val system: ActorSystem = akka.getActorSystem
+  private val setup = which match {
     case "rational" => Application.getSetupForRational
     case "double" => Application.getSetupForDouble
+//    case "number" => Application.getSetupForNumber
     case _ => Console.err.println(s"Unsupported calculator type: $which"); Application.getSetupForRational
   }
-  val calculator = system.actorOf(setup._1, "junk")
-  val name: String = setup._3;
+  private val calculator = system.actorOf(setup._1, "junk")
+  val name: String = setup._3
   println(s"$name is ready") // TODO send this to logs
 
   def index(): Action[AnyContent] = Action.async(
@@ -46,7 +48,7 @@ class RestController @Inject()(akka: Akka, cc: ControllerComponents)(implicit as
   def command(s: String): Action[AnyContent] = Action.async {
     (calculator ? s).mapTo[Try[_]] map {
       case Success(x) => Ok(s"""$name: you entered "$s" and got back $x""")
-            case Failure(e) => if (s=="clr") Redirect(routes.RestController.index) else  Ok(s"""$name: you entered "$s" which caused error: $e""")
+            case Failure(e) => if (s=="clr") Redirect(routes.RestController.index()) else  Ok(s"""$name: you entered "$s" which caused error: $e""")
     }
   }
 }
