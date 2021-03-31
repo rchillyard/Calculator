@@ -1,31 +1,28 @@
-import org.specs2.mutable._
-import org.specs2.runner._
-import org.junit.runner._
-
 import play.api.test._
 import play.api.test.Helpers._
+import org.scalatestplus.play._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-/**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
- */
-@RunWith(classOf[JUnitRunner])
-class ApplicationSpec extends Specification {
+class ApplicationSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   "Application" should {
 
-    "send 404 on a bad request" in new WithApplication{
-      route(FakeRequest(GET, "/boum")) must beSome.which (status(_) == NOT_FOUND)
+    "send 404 on a bad request" in {
+      val Some(home) = route(app,FakeRequest(GET, "/boum"))
+
+      status(home) mustBe OK
+      contentType(home) mustBe Some("text/plain")
+      contentAsString(home) must include ("controllers.Rational Calculator: you entered \"boum\" which caused error: java.lang.IllegalArgumentException: operator boum is not supported")
 
     }
 
-    "render the index page" in new WithApplication{
-      val home = route(FakeRequest(GET, "/")).get
+    "render the index page" in {
+      val Some(home) = route(app,FakeRequest(GET, "/"))
 
-      status(home) must equalTo(OK)
-      contentType(home) must beSome.which(_ == "text/html")
-      contentAsString(home) must contain ("ScalaRPN: calculator has the following elements (starting with top): Stack()")
+      status(home) mustBe OK
+      contentType(home) mustBe Some("text/plain")
+      contentAsString(home) must include ("controllers.Rational Calculator: calculator has the following elements (starting with top): Stack()")
     }
   }
+
 }

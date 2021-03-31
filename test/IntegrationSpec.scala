@@ -1,24 +1,19 @@
-import org.specs2.mutable._
-import org.specs2.runner._
-import org.junit.runner._
-
-import play.api.test._
-import play.api.test.Helpers._
 
 /**
  * add your integration spec here.
  * An integration test will fire up a whole play application in a real (or headless) browser
  */
-@RunWith(classOf[JUnitRunner])
-class IntegrationSpec extends Specification {
+import org.scalatestplus.play._
+
+class IntegrationSpec extends PlaySpec with OneBrowserPerSuite with OneServerPerSuite with HtmlUnitFactory {
 
   "Application" should {
 
-    "work from within a browser" in new WithBrowser {
+    "work from within a browser" in {
 
-      browser.goTo("http://localhost:" + port)
+      go to "http://localhost:" + port
 
-      browser.pageSource must contain("ScalaRPN: calculator has the following elements (starting with top): Stack()")
+      pageSource must include ("controllers.Rational Calculator: calculator has the following elements (starting with top): Stack()")
     }
   }
 }
