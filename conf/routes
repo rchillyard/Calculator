@@ -2,10 +2,16 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-GET     /                           controllers.Application.index
-GET  	/favicon.ico   controllers.Assets.at(path="/public/images", file="favicon.png")
-GET     /:command                   controllers.Application.command(command: String)
+GET         /                     controllers.MillController.index
+
+# An example controller showing a sample home page
+GET         /rest                 controllers.RestController.index
+
+# Treat the text following the "/" as the parameter to command.
+GET         /rest/:command        controllers.RestController.command(command: String)
+
+GET         /mill              controllers.MillController.millCommand
+POST        /mill              controllers.MillController.millCommand
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file         controllers.Assets.versioned(file)

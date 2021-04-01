@@ -1,46 +1,16 @@
-name := "PlaySampleProject"
-
-version := "0.1"
-
-scalaVersion := "2.12.7"
-
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
-
-resolvers += Resolver.sonatypeRepo("snapshots")
-//resolvers += Resolver.url("Typesafe Ivy releases", url("https://repo.typesafe.com/typesafe/ivy-releases"))(Resolver.ivyStylePatterns)
-
-//val akkaGroup = "com.typesafe.akka"
-//val akkaVersion = "2.0.5"
-//val scalaTestVersion = "2.2.4"
-
-libraryDependencies += guice
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
-
-// https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit
-libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.19" % Test
-
-libraryDependencies += "com.typesafe.play" % "play-logback_2.12" % "2.5.4"
-
-//resolvers ++= Seq(
-//  "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
-//)
-//libraryDependencies ++= Seq(
-//  akkaGroup %% "akka-actor" % akkaVersion,
-//  akkaGroup %% "akka-testkit" % akkaVersion % Test,
-//  akkaGroup %% "akka-slf4j" % akkaVersion,
-//  "com.typesafe" % "config" % "1.3.0",
-//  jdbc,
-//  cache,
-//  ws,
-//  specs2 % Test,
-////  "default" %% "numerics" % "1.0.0-SNAPSHOT",
-//  "org.scalatest" %% "scalatest" % scalaTestVersion % Test
-//
-//)
-
-// Play provides two styles of routers, one expects its actions to be injected, the
-// other, legacy style, accesses its actions statically.
-routesGenerator := InjectedRoutesGenerator
-
-
-fork in run := true
+lazy val root = (project in file("."))
+  .enablePlugins(PlayScala)
+  .settings(
+    name := """Calculator""",
+    version := "2.8.x",
+    scalaVersion := "2.13.1",
+    libraryDependencies ++= Seq(
+      guice,
+      "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test,
+    ),
+    scalacOptions ++= Seq(
+      "-feature",
+      "-deprecation",
+      "-Xfatal-warnings"
+    )
+  )

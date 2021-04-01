@@ -1,7 +1,11 @@
-@(message: String)
+@()
 
-@main(title = "Welcome to Play") {
-
-    @welcome(message)
-
+@main("Welcome to Calculator") {
+  <div>
+    <ul>
+      <li>
+        For form interface, please go to <a href="@routes.MillController.millCommand">@routes.MillController.millCommand</a></li>
+      <li>For REST interface, please go to <a href="/rest">@routes.RestController.index</a></li>
+    </ul>
+  </div>
 }
