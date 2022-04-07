@@ -10,8 +10,8 @@ import scala.util._
 trait Valuable[A]
   
 case class Number[A : Numeric](s: String)( conv: String=>Try[A]) extends Valuable[A] with (() => Try[A]) {
-  def apply: Try[A] = conv(s)
-  override def toString: String = apply.toString+"("+s+")"
+  def apply(): Try[A] = conv(s)
+  override def toString: String = apply().toString+"("+s+")"
 }
 
 case class Operator[A : Numeric](s: String) extends Valuable[A] {

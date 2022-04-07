@@ -32,7 +32,7 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
   // The URL to the maybeCommand.  You can call this directly from the template, but it
   // can be more convenient to leave the template completely stateless i.e. all
   // of the "MillController" references are inside the .scala file.
-  private val postUrl = routes.MillController.millCommand()
+  private val postUrl = routes.MillController.millCommand
 
   private val calculator = akka.getCalculator
   private val name = akka.getName
@@ -76,10 +76,10 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
           case MillCommand(_, Some(value)) => sendToCalculator(value.toString) // TODO should really only do push
           case _ => println("Illegal mill maybeCommand"); Future(Rational.NaN -> Seq[MillCommand]())
         }
-        result.map { case (r, _) => Redirect(routes.MillController.millCommand()).flashing("info" -> s"Result: $r") }
+        result.map { case (r, _) => Redirect(routes.MillController.millCommand).flashing("info" -> s"Result: $r") }
       }
 
-      val formValidationResult: Form[ValidCommand] = form.bindFromRequest
+      val formValidationResult: Form[ValidCommand] = form.bindFromRequest()
       formValidationResult.fold(invalidFunction, validFunction)
   }
 

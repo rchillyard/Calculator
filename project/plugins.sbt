@@ -1,6 +1,6 @@
 //Completely new File
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.1")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.15")
 //addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.20")
 
 //// The Typesafe repository

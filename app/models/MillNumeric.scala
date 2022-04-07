@@ -30,7 +30,7 @@ abstract class Mill[A: Numeric](stack: Stack[A])(implicit store: Map[String, A])
   }
 
   def pop: A = {
-    val x = stack.pop; if (debugMill) println(s"popped $x"); x
+    val x = stack.pop(); if (debugMill) println(s"popped $x"); x
   }
 
   def setDebug(b: Boolean): Unit = {
@@ -42,7 +42,7 @@ abstract class Mill[A: Numeric](stack: Stack[A])(implicit store: Map[String, A])
   def iterator: Iterator[A] = stack.iterator
 
   def apply(v: Valuable[A]): Try[A] = v match {
-    case n@Number(x) => n.apply match {
+    case n@Number(x) => n.apply() match {
       case Success(x) => push(x);
       case Failure(e) => throw e
     }; value
@@ -94,11 +94,11 @@ abstract class Mill[A: Numeric](stack: Stack[A])(implicit store: Map[String, A])
     case "del" =>
       has(1); pop
     case "clr" =>
-      stack.clear
+      stack.clear()
     case x => throw new IllegalArgumentException(s"operator $x is not supported")
   }
   
-  def memInst(s: String, k: String) = s.toLowerCase match {
+  def memInst(s: String, k: String): Any = s.toLowerCase match {
     case "sto" => value match {case Success(x) => store.put(k,x); case Failure(e) => throw e}
     case "rcl" => store.get(k) match {case Some(x) => push(x); case None => throw new IllegalArgumentException(s"no value at memory location $k")}
   }

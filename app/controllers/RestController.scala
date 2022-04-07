@@ -38,7 +38,7 @@ class RestController @Inject()(akka: Akka, cc: ControllerComponents)(implicit as
   val name: String = setup._3
   println(s"$name is ready") // TODO send this to logs
 
-  def index(): Action[AnyContent] = Action.async(
+  def index: Action[AnyContent] = Action.async(
     (calculator ? View).mapTo[Mill[_]].map(_.iterator.toList) map {
       case Nil => Ok(s"$name: calculator stack is empty")
       case xs => Ok(s"$name: calculator has elements (starting with top): ${xs.mkString(", ")}")
@@ -48,7 +48,7 @@ class RestController @Inject()(akka: Akka, cc: ControllerComponents)(implicit as
   def command(s: String): Action[AnyContent] = Action.async {
     (calculator ? s).mapTo[Try[_]] map {
       case Success(x) => Ok(s"""$name: you entered "$s" and got back $x""")
-            case Failure(e) => if (s=="clr") Redirect(routes.RestController.index()) else  Ok(s"""$name: you entered "$s" which caused error: $e""")
+            case Failure(e) => if (s=="clr") Redirect(routes.RestController.index) else  Ok(s"""$name: you entered "$s" which caused error: $e""")
     }
   }
 }

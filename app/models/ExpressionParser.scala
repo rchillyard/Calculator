@@ -16,7 +16,10 @@ case class ExpressionParser[A : Numeric](conv: String=>Try[A], lookup: String=>O
 
   def term: Parser[Valuable[A]] = (meminst | value | const | op | failure("bad term"))
 
-  def meminst: Parser[Valuable[A]] = ("sto" | "rcl" | failure("mem inst")) ~ ":" ~ ident ^^ { case s ~ ":" ~ k => MemInst(s, k) }
+  def meminst: Parser[Valuable[A]] = (("sto" | "rcl" | failure("mem inst")) <~ ":") ~ ident ^^ {
+    case s ~ k => MemInst(s, k)
+    case _ => MemInst("","")
+  }
 
   def op: Parser[Valuable[A]] = (ident | "+" | "-" | "*" | "/" | failure("no op")) ^^ { x => Operator(x) }
 
