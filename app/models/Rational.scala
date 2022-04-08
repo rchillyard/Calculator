@@ -2,6 +2,7 @@ package models
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
+import scala.math.Numeric.DoubleIsFractional
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -55,6 +56,15 @@ case class Rational(n: BigInt, d: BigInt) {
   def /(that: Long): Rational = this / Rational(that)
 
   def ^(that: Int): Rational = power(that)
+
+  def root(x: Int): Rational = x match {
+    case 0 => Rational.infinity
+    case 1 => this
+    case 2 => Rational(math.sqrt(toDouble))
+    case _ => Rational(math.pow(math.E, math.log(toDouble) / x))
+  }
+
+  def ^(that: Rational): Rational = power(that.n.toInt).root(that.d.toInt)
 
   // Other methods appropriate to Rational
   def signum: Int = n.signum
@@ -205,8 +215,6 @@ object Rational {
 
   @tailrec def gcd(a: BigInt, b: BigInt): BigInt = if (b == 0) a else gcd(b, a % b)
 
-  implicit object RationalNumeric extends RationalIsFractional
-
   implicit def doubleToRational(x: Double): Rational = Rational(x)
 
   implicit def longToRational(x: Long): Rational = Rational(x)
@@ -286,11 +294,34 @@ object Rational {
   def hasCorrectRatio(r: Rational, top: BigInt, bottom: BigInt): Boolean = {
     val _a = r * bottom
     val result = bottom == 0 || _a.isInfinity || (_a.isWhole && _a.toBigInt == top)
-    if (!result) throw RationalException(s"incorrect ratio: r=${r.n}/${r.d}, top=$top, bottom=$bottom, _a=${_a}, gcd=${Rational.gcd(top, bottom)}")
+    if (!result) throw RationalException(s"incorrect ratio: r=${r.n}/${r.d}, y=$top, z=$bottom, _a=${_a}, gcd=${Rational.gcd(top, bottom)}")
     result
   }
 
+
+  trait RationalIsRationalNumber extends RationalFractional[Rational] with RationalIsFractional {
+    def asRational(t: Rational): Rational = t
+
+    def fromRational(r: Rational): Rational = r
+  }
+
+  implicit object RationalIsRationalNumber extends RationalIsRationalNumber
+
+  trait DoubleIsRationalNumber extends RationalFractional[Double] with DoubleIsFractional {
+    def asRational(t: Double): Rational = Rational.doubleToRational(t)
+
+    def fromRational(r: Rational): Double = r.toDouble
+
+    def compare(x: Double, y: Double): Int = x.compare(y)
+  }
+
+  implicit object DoubleIsRationalNumber extends DoubleIsRationalNumber
 }
 
 case class RationalException(s: String) extends Exception(s)
 
+trait RationalFractional[T] extends Fractional[T] {
+  def asRational(t: T): Rational
+
+  def fromRational(r: Rational): T
+}

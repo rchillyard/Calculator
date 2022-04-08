@@ -8,7 +8,7 @@ import scala.util._
  * @author scalaprof
  */
 trait Valuable[A]
-  
+
 case class Number[A : Numeric](s: String)( conv: String=>Try[A]) extends Valuable[A] with (() => Try[A]) {
   def apply(): Try[A] = conv(s)
   override def toString: String = apply().toString+"("+s+")"

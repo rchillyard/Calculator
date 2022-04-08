@@ -10,8 +10,8 @@ class MillSpec extends FlatSpec with Matchers {
   
   implicit val conv: String=>Try[Double] = {s => Try(s.toDouble)}
   implicit val lookup: String=>Option[Double] = DoubleMill.constants.get _
-  implicit val parser = new ExpressionParser[Double](conv,lookup)
-  implicit val n = implicitly[Numeric[Double]]
+  implicit val parser: ExpressionParser[Double] = new ExpressionParser[Double](conv,lookup)
+  implicit val n: Numeric[Double] = implicitly[Numeric[Double]]
   
   "Mill(x)" should "evaluate 1 as 1.0" in {
     val one = Number.apply("1")(conv)

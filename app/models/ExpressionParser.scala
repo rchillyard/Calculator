@@ -21,7 +21,7 @@ case class ExpressionParser[A : Numeric](conv: String=>Try[A], lookup: String=>O
     case _ => MemInst("","")
   }
 
-  def op: Parser[Valuable[A]] = (ident | "+" | "-" | "*" | "/" | failure("no op")) ^^ { x => Operator(x) }
+  def op: Parser[Valuable[A]] = (ident | "+" | "-" | "*" | "/" | "^" | failure("no op")) ^^ { x => Operator(x) }
 
   def const: Parser[Valuable[A]] = "_" ~> ident ^^ { case s => Constant(s)(lookup) }
 

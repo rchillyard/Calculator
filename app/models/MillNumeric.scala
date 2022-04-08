@@ -1,6 +1,6 @@
 package models
 
-import scala.collection.mutable.{Map, Stack}
+import scala.collection.mutable
 import scala.util._
 
 /**
@@ -16,17 +16,19 @@ import scala.util._
  * @author scalaprof
  */
 //noinspection ScalaDeprecation
-abstract class Mill[A: Numeric](stack: Stack[A])(implicit store: Map[String, A]) extends Function1[Valuable[A], Try[A]] with Iterable[A] {
+abstract class Mill[A: RationalFractional](stack: mutable.Stack[A])(implicit store: mutable.Map[String, A]) extends Function1[Valuable[A], Try[A]] with Iterable[A] {
   self =>
 
   var debugMill = false;
 
-  def value: Try[A] = if (stack.size > 0) Success(stack.top) else Failure(new IllegalArgumentException("stack is empty"))
+  def value: Try[A] = if (stack.nonEmpty) Success(stack.top) else Failure(new IllegalArgumentException("stack is empty"))
 
   def show(): Unit = println(stack)
 
   def push(x: A): Unit = {
-    if (debugMill) println(s"push $x"); stack.push(x); ()
+    if (debugMill) println(s"push $x");
+    stack.push(x);
+    ()
   }
 
   def pop: A = {
@@ -89,8 +91,15 @@ abstract class Mill[A: Numeric](stack: Stack[A])(implicit store: Map[String, A])
         case z: Fractional[A] => monadic2(z.div)(i.one)
         case _ => throw new IllegalArgumentException(s"operator inv is not supported for this value type")
       }
+    case "^" =>
+      has(2)
+      val z = implicitly[RationalFractional[A]]
+      val x = z.asRational(pop)
+      val y = z.asRational(pop)
+      push(z.fromRational(y ^ x))
     case "swap" =>
-      has(2); val (top, next) = (pop, pop); push(top); push(next)
+      has(2);
+      val (top, next) = (pop, pop); push(top); push(next)
     case "del" =>
       has(1); pop
     case "clr" =>
