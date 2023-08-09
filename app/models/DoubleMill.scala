@@ -2,7 +2,10 @@ package models
 
 import scala.collection.mutable
 import scala.util._
-//
+
+class DoubleMill(implicit store: mutable.Map[String, Double], ev: RationalFractional[Double]) extends Mill[Double](mutable.Stack[Double]()) {
+  def apply(s: String): Try[Double] = DoubleMill.valueOf(s)
+}
 
 /**
  * @author scalaprof
@@ -15,9 +18,7 @@ object DoubleMill {
 
   import models.Rational.DoubleIsRationalNumber
 
-  def apply(): Mill[Double] = new Mill(mutable.Stack[Double]()) {
-    def apply(s: String): Try[Double] = DoubleMill.valueOf(s)
-  }
+  def apply(): Mill[Double] = new DoubleMill
 
   def valueOf(s: String): Try[Double] = Try(s.toDouble)
 

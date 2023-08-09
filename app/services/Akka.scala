@@ -33,14 +33,12 @@ class Akka @Inject()(appLifecycle: ApplicationLifecycle) {
 
   def getActorSystem: ActorSystem = actorSystem
 
-  val config = ConfigFactory.load()
-  val which = config.getString("calculator")
-
-  implicit val system = actorSystem
-  private val setup = which match {
+  private val config = ConfigFactory.load()
+  implicit val system: ActorSystem = actorSystem
+  private val setup = config.getString("calculator") match {
     case "rational" => Application.getSetupForRational
     case "double" => Application.getSetupForDouble
-    case _ => Console.err.println(s"Unsupported calculator type: $which"); Application.getSetupForRational
+    case x => Console.err.println(s"Unsupported calculator type: $x"); Application.getSetupForRational
   }
   private val calculator = system.actorOf(setup._1, setup._2)
   println(s"Akka: Calculator actor started with props ${setup._1} with name ${setup._2}") // TODO send this to logs

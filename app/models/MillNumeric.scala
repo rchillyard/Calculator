@@ -3,6 +3,12 @@ package models
 import scala.collection.mutable
 import scala.util._
 
+trait Stack[T] {
+  def push(x: T): Stack[T]
+
+  def pop(): (T, Stack[T])
+}
+
 /**
  * Abstract class modeling the "mill" of the calculator.
  * Please note:

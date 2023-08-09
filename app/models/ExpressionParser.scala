@@ -23,7 +23,7 @@ case class ExpressionParser[A : Numeric](conv: String=>Try[A], lookup: String=>O
 
   def op: Parser[Valuable[A]] = (ident | "+" | "-" | "*" | "/" | "^" | failure("no op")) ^^ { x => Operator(x) }
 
-  def const: Parser[Valuable[A]] = "_" ~> ident ^^ { case s => Constant(s)(lookup) }
+  def const: Parser[Valuable[A]] = "_" ~> ident ^^ (s => Constant(s)(lookup))
 
   def value: Parser[Valuable[A]] = floatingPointNumber ^^ { x => Number(x)(conv) }
 

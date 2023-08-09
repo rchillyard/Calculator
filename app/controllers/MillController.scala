@@ -2,8 +2,9 @@ package controllers
 
 import akka.pattern.ask
 import akka.util.Timeout
+
 import javax.inject.Inject
-import models.{Mill, MillCommand, NumericValue, Rational}
+import models.{Mill, MillCommand, NumericToken, NumericValue, Rational}
 import play.api.data._
 import play.api.mvc._
 import services.Akka
@@ -32,7 +33,7 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
   // The URL to the maybeCommand.  You can call this directly from the template, but it
   // can be more convenient to leave the template completely stateless i.e. all
   // of the "MillController" references are inside the .scala file.
-  private val postUrl = routes.MillController.millCommand
+  private val postUrl = routes.MillController.millCommand()
 
   private val calculator = akka.getCalculator
   private val name = akka.getName
@@ -45,7 +46,7 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
   def showMill: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
     println("showMill")
     // Pass an unpopulated form to the template
-    val eventualList: Future[List[NumericValue]] = for (xs <- getStack) yield for (x <- xs) yield NumericValue(x)
+    val eventualList: Future[List[NumericToken]] = for (xs <- getStack) yield for (x <- xs) yield x
     eventualList map {
       //      case Nil => Ok(s"$name: calculator stack is empty")
       xs =>
@@ -55,7 +56,7 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
   }
 
   // This will be the action that handles our form post
-  def millCommand: Action[AnyContent] = Action.async {
+  def millCommand(): Action[AnyContent] = Action.async {
     implicit request: MessagesRequest[AnyContent] =>
 
       /**
@@ -76,7 +77,7 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
           case MillCommand(_, Some(value)) => sendToCalculator(value.toString) // TODO should really only do push
           case _ => println("Illegal mill maybeCommand"); Future(Rational.NaN -> Seq[MillCommand]())
         }
-        result.map { case (r, _) => Redirect(routes.MillController.millCommand).flashing("info" -> s"Result: $r") }
+        result.map { case (r, _) => Redirect(routes.MillController.millCommand()).flashing("info" -> s"Result: $r") }
       }
 
       val formValidationResult: Form[ValidCommand] = form.bindFromRequest()
@@ -90,18 +91,18 @@ class MillController @Inject()(akka: Akka, cc: MessagesControllerComponents)(imp
     })
 
   // NOTE: this assumes Mill uses Rational
-  private def getStack: Future[List[Rational]] = {
-    val rmf = (calculator ? actors.View).mapTo[Mill[Rational]]
+  private def getStack: Future[List[NumericToken]] = {
+    val rmf = (calculator ? actors.View).mapTo[Mill[NumericToken]]
     for (rm <- rmf) yield for (r <- rm.toList) yield r
   }
 
   // NOTE: this assumes Mill uses Rational
-  def sendToCalculator(s: String): Future[(Rational, Seq[MillCommand])] = flatten {
-    (calculator ? s).mapTo[Try[Rational]] flatMap {
+  def sendToCalculator(s: String): Future[(NumericToken, Seq[MillCommand])] = flatten {
+    (calculator ? s).mapTo[Try[NumericToken]] flatMap {
       case Success(x) =>
         getStack map {
           xs =>
-            val millCommands: Seq[MillCommand] = xs.map(r => MillCommand(None, Try(NumericValue(r)).toOption))
+            val millCommands: Seq[MillCommand] = xs.map(r => MillCommand(None, Try(r).toOption))
             Success(x -> millCommands)
         }
       case Failure(e) =>

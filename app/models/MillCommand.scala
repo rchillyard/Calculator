@@ -7,4 +7,4 @@ package models
  * which are used for reads, distinct from the form processing DTO,
  * which are used for writes.
  */
-case class MillCommand(maybeCommand: Option[String], maybeValue: Option[NumericValue])
+case class MillCommand(maybeCommand: Option[String], maybeValue: Option[NumericToken])

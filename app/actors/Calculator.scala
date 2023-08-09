@@ -8,7 +8,7 @@ import models._
  *
  * CONSIDER making parser implicit
  */
-class Calculator[A : Numeric](mill: Mill[A], parser: ExpressionParser[A]) extends Actor with ActorLogging {
+class Calculator[A : Operable](mill: Mill[A], parser: ExpressionParser[A]) extends Actor with ActorLogging {
   
   override def receive: Receive = {
     case View =>
